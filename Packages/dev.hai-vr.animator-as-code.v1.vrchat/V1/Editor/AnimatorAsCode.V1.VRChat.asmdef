@@ -1,7 +1,7 @@
 {
-    "name": "AnimatorAsCodeFramework.V1.VRC",
+    "name": "AnimatorAsCode.V1.VRChat",
     "references": [
-        "GUID:7b32145194168e0409534fc5052b85ce"
+        "AnimatorAsCode.V1"
     ],
     "includePlatforms": [
         "Editor"
