@@ -369,6 +369,7 @@ namespace AnimatorAsCode.V1.VRC
         public AacFlFloatParameter VelocityX => _backingAnimator.FloatParameter("VelocityX");
         public AacFlFloatParameter VelocityY => _backingAnimator.FloatParameter("VelocityY");
         public AacFlFloatParameter VelocityZ => _backingAnimator.FloatParameter("VelocityZ");
+        public AacFlFloatParameter VelocityMagnitude => _backingAnimator.FloatParameter("VelocityMagnitude");
         public AacFlFloatParameter Upright => _backingAnimator.FloatParameter("Upright");
         public AacFlBoolParameter Grounded => _backingAnimator.BoolParameter("Grounded");
         public AacFlBoolParameter Seated => _backingAnimator.BoolParameter("Seated");
@@ -378,6 +379,13 @@ namespace AnimatorAsCode.V1.VRC
         public AacFlBoolParameter MuteSelf => _backingAnimator.BoolParameter("MuteSelf");
         public AacFlBoolParameter InStation => _backingAnimator.BoolParameter("InStation");
         public AacFlFloatParameter Voice => _backingAnimator.FloatParameter("Voice");
+        public AacFlBoolParameter Earmuffs => _backingAnimator.BoolParameter("Earmuffs");
+        public AacFlBoolParameter IsOnFriendsList => _backingAnimator.BoolParameter("IsOnFriendsList");
+        public AacFlBoolParameter ScaleModified => _backingAnimator.BoolParameter("ScaleModified");
+        public AacFlFloatParameter ScaleFactor => _backingAnimator.FloatParameter("ScaleFactor");
+        public AacFlFloatParameter ScaleFactorInverse => _backingAnimator.FloatParameter("ScaleFactorInverse");
+        public AacFlFloatParameter EyeHeightAsMeters => _backingAnimator.FloatParameter("EyeHeightAsMeters");
+        public AacFlFloatParameter EyeHeightAsPercent => _backingAnimator.FloatParameter("EyeHeightAsPercent");
         // ReSharper restore InconsistentNaming
 
         public IAacFlCondition ItIsRemote() => IsLocal.IsFalse();
