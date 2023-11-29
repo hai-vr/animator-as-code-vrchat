@@ -1,7 +1,7 @@
 {
   "name": "dev.hai-vr.animator-as-code.v1.vrchat",
   "displayName": "Animator As Code - VRChat (Alpha)",
-  "version": "1.0.9920",
+  "version": "1.0.9930",
   "unity": "2019.4",
   "description": "VRChat Avatars extension functions.",
   "vrchatVersion" : "2022.1.1",
