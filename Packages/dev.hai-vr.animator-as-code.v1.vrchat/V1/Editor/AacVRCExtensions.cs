@@ -535,6 +535,24 @@ namespace AnimatorAsCode.V1.VRC
             PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
             return this;
         }
+
+        public AacVRCFlEditPlayAudio SelectsClipIfStopped(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            PlayAudio.ParameterName = indexParameter.Name;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SelectsClip(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            PlayAudio.ParameterName = indexParameter.Name;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
+        }
     }
 
     public class AacAv3
