@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
@@ -189,6 +190,25 @@ namespace AnimatorAsCode.V1.VRC
             return node;
         }
 
+        public static TNode Audio<TNode>(this TNode node, AudioSource source, Action<AacVRCFlEditPlayAudio> action) where TNode : AacAnimatorNode<TNode>
+        {
+            var playAudio = node.EnsureBehaviour<VRCAnimatorPlayAudio>();
+            playAudio.SourcePath = node.ResolveRelativePath(source.transform);
+            playAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            playAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            playAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            playAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            
+            playAudio.PlayOnEnter = false;
+            playAudio.StopOnEnter = false;
+            playAudio.PlayOnExit = false;
+            playAudio.StopOnExit = false;
+            
+            action.Invoke(new AacVRCFlEditPlayAudio(playAudio));
+
+            return node;
+        }
+
         private static void EnsureParameter(this VRC_AvatarParameterDriver driver, VRC_AvatarParameterDriver.Parameter p)
         {
             for (var i = 0; i < driver.parameters.Count; i++)
@@ -346,6 +366,174 @@ namespace AnimatorAsCode.V1.VRC
             temporaryPoseSpace.fixedDelay = false;
             temporaryPoseSpace.delayTime = delayNormalized;
             return node;
+        }
+    }
+
+    public class AacVRCFlEditPlayAudio
+    {
+        public VRCAnimatorPlayAudio PlayAudio { get; }
+
+        public AacVRCFlEditPlayAudio(VRCAnimatorPlayAudio playAudio)
+        {
+            PlayAudio = playAudio;
+        }
+
+        public AacVRCFlEditPlayAudio ReplaysOnEnter()
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = true;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio StartsPlayingOnEnter()
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = false;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio ReplaysOnEnterAfterSeconds(float delaySeconds)
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = true;
+            PlayAudio.DelayInSeconds = delaySeconds;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio StartsPlayingOnEnterAfterSeconds(float delaySeconds)
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = false;
+            PlayAudio.DelayInSeconds = delaySeconds;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio StopsPlayingOnEnter()
+        {
+            PlayAudio.PlayOnEnter = false;
+            PlayAudio.StopOnEnter = true;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio ReplaysOnExit()
+        {
+            PlayAudio.PlayOnExit = true;
+            PlayAudio.StopOnExit = true;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio StartsPlayingOnExit()
+        {
+            PlayAudio.PlayOnExit = true;
+            PlayAudio.StopOnExit = false;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio StopsPlayingOnExit()
+        {
+            PlayAudio.PlayOnExit = false;
+            PlayAudio.StopOnExit = true;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsLoopingIfStopped()
+        {
+            PlayAudio.Loop = true;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsNonLoopingIfStopped()
+        {
+            PlayAudio.Loop = false;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsLooping()
+        {
+            PlayAudio.Loop = true;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsNonLooping()
+        {
+            PlayAudio.Loop = false;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio RandomizesVolumeIfStopped(float min, float max)
+        {
+            PlayAudio.Volume = new Vector2(min, max);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio RandomizesVolume(float min, float max)
+        {
+            PlayAudio.Volume = new Vector2(min, max);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio RandomizesPitchIfStopped(float min, float max)
+        {
+            PlayAudio.Pitch = new Vector2(min, max);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio RandomizesPitch(float min, float max)
+        {
+            PlayAudio.Pitch = new Vector2(min, max);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsVolumeIfStopped(float value)
+        {
+            PlayAudio.Volume = new Vector2(value, value);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsVolume(float value)
+        {
+            PlayAudio.Volume = new Vector2(value, value);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsPitchIfStopped(float value)
+        {
+            PlayAudio.Pitch = new Vector2(value, value);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SetsPitch(float value)
+        {
+            PlayAudio.Pitch = new Vector2(value, value);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SelectsClipIfStopped(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = order;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
+        }
+
+        public AacVRCFlEditPlayAudio SelectsClip(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = order;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
         }
     }
 
