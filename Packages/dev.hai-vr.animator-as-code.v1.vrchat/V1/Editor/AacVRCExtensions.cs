@@ -192,8 +192,8 @@ namespace AnimatorAsCode.V1.VRC
         }
 
         /// <summary>
-        /// Creates a new VRCAvatarParameterDriver behaviour, and edits it. Be default, it is non-local, so it drives even if it's not on the avatar wearer.
-        /// This always creates a new behaviour even if there are already VRCAvatarParameterDriver behaviours.
+        /// Creates a new VRCAvatarParameterDriver behaviour, and edits it. By default, it is non-local, so it drives even if it's not on the avatar wearer.
+        /// This always creates a new behaviour even if there are already other VRCAvatarParameterDriver behaviours.
         /// </summary>
         public static TNode Driving<TNode>(this TNode node, Action<AacVRCFlEditDriver> action) where TNode : AacAnimatorNode<TNode>
         {
@@ -209,7 +209,7 @@ namespace AnimatorAsCode.V1.VRC
         /// Creates a new VRCAnimatorPlayAudio behaviour, and edits it.
         /// If you don't have the AudioSource, use the overload that accepts a string.
         /// By default, this behaviour does nothing (everything is set to NeverApply, and does neither stop nor plays anything), unlike a VRCAnimatorPlayAudio that would be created by hand.
-        /// This always creates a new behaviour even if there are already VRCAnimatorPlayAudio behaviours.
+        /// This always creates a new behaviour even if there are already other VRCAnimatorPlayAudio behaviours.
         /// </summary>
         public static TNode Audio<TNode>(this TNode node, AudioSource source, Action<AacVRCFlEditPlayAudio> action) where TNode : AacAnimatorNode<TNode>
         {
@@ -224,7 +224,7 @@ namespace AnimatorAsCode.V1.VRC
         /// Creates a new VRCAnimatorPlayAudio behaviour, and edits it.
         /// There is an overload that takes an AudioSource instead of a string.
         /// By default, this behaviour does nothing (everything is set to NeverApply, and does neither stop nor plays anything), unlike a VRCAnimatorPlayAudio that would be created by hand.
-        /// This always creates a new behaviour even if there are already VRCAnimatorPlayAudio behaviours.
+        /// This always creates a new behaviour even if there are already other VRCAnimatorPlayAudio behaviours.
         /// </summary>
         public static TNode Audio<TNode>(this TNode node, string audioSourcePath, Action<AacVRCFlEditPlayAudio> action) where TNode : AacAnimatorNode<TNode>
         {
