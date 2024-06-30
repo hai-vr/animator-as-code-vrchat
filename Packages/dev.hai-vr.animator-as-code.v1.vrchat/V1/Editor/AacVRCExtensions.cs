@@ -195,12 +195,12 @@ namespace AnimatorAsCode.V1.VRC
         /// Creates a new VRCAvatarParameterDriver behaviour, and edits it. By default, it is non-local, so it drives even if it's not on the avatar wearer.
         /// This always creates a new behaviour even if there are already other VRCAvatarParameterDriver behaviours.
         /// </summary>
-        public static TNode Driving<TNode>(this TNode node, Action<AacVRCFlEditDriver> action) where TNode : AacAnimatorNode<TNode>
+        public static TNode Driving<TNode>(this TNode node, Action<AacVRCFlEditAvatarParameterDriver> action) where TNode : AacAnimatorNode<TNode>
         {
             var driver = node.CreateNewBehaviour<VRCAvatarParameterDriver>();
             driver.localOnly = false;
             
-            action.Invoke(new AacVRCFlEditDriver(driver));
+            action.Invoke(new AacVRCFlEditAvatarParameterDriver(driver));
 
             return node;
         }
@@ -211,7 +211,7 @@ namespace AnimatorAsCode.V1.VRC
         /// By default, this behaviour does nothing (everything is set to NeverApply, and does neither stop nor plays anything), unlike a VRCAnimatorPlayAudio that would be created by hand.
         /// This always creates a new behaviour even if there are already other VRCAnimatorPlayAudio behaviours.
         /// </summary>
-        public static TNode Audio<TNode>(this TNode node, AudioSource source, Action<AacVRCFlEditPlayAudio> action) where TNode : AacAnimatorNode<TNode>
+        public static TNode Audio<TNode>(this TNode node, AudioSource source, Action<AacVRCFlEditAnimatorPlayAudio> action) where TNode : AacAnimatorNode<TNode>
         {
             var sourcePath = node.ResolveRelativePath(source.transform);
             
@@ -226,7 +226,7 @@ namespace AnimatorAsCode.V1.VRC
         /// By default, this behaviour does nothing (everything is set to NeverApply, and does neither stop nor plays anything), unlike a VRCAnimatorPlayAudio that would be created by hand.
         /// This always creates a new behaviour even if there are already other VRCAnimatorPlayAudio behaviours.
         /// </summary>
-        public static TNode Audio<TNode>(this TNode node, string audioSourcePath, Action<AacVRCFlEditPlayAudio> action) where TNode : AacAnimatorNode<TNode>
+        public static TNode Audio<TNode>(this TNode node, string audioSourcePath, Action<AacVRCFlEditAnimatorPlayAudio> action) where TNode : AacAnimatorNode<TNode>
         {
             var playAudio = node.CreateNewBehaviour<VRCAnimatorPlayAudio>();
             playAudio.SourcePath = audioSourcePath;
@@ -240,7 +240,7 @@ namespace AnimatorAsCode.V1.VRC
             playAudio.PlayOnExit = false;
             playAudio.StopOnExit = false;
             
-            action.Invoke(new AacVRCFlEditPlayAudio(playAudio));
+            action.Invoke(new AacVRCFlEditAnimatorPlayAudio(playAudio));
 
             return node;
         }
@@ -405,11 +405,11 @@ namespace AnimatorAsCode.V1.VRC
         }
     }
 
-    public class AacVRCFlEditDriver
+    public class AacVRCFlEditAvatarParameterDriver
     {
         [PublicAPI] public VRCAvatarParameterDriver Driver { get; }
 
-        public AacVRCFlEditDriver(VRCAvatarParameterDriver driver)
+        public AacVRCFlEditAvatarParameterDriver(VRCAvatarParameterDriver driver)
         {
             Driver = driver;
         }
@@ -417,7 +417,7 @@ namespace AnimatorAsCode.V1.VRC
         /// <summary>
         /// Set <i>parameter</i> to a given <i>value</i>.
         /// </summary>
-        public AacVRCFlEditDriver Sets<TParam>(AacFlParameter<TParam> parameter, TParam value)
+        public AacVRCFlEditAvatarParameterDriver Sets<TParam>(AacFlParameter<TParam> parameter, TParam value)
         {
             Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
@@ -430,7 +430,7 @@ namespace AnimatorAsCode.V1.VRC
         /// <summary>
         /// Set <i>parameter</i> by increasing its current value by <i>additiveValue</i>.
         /// </summary>
-        public AacVRCFlEditDriver Increases<TParam>(AacFlNumericParameter<TParam> parameter, TParam additiveValue)
+        public AacVRCFlEditAvatarParameterDriver Increases<TParam>(AacFlNumericParameter<TParam> parameter, TParam additiveValue)
         {
             Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
@@ -443,7 +443,7 @@ namespace AnimatorAsCode.V1.VRC
         /// <summary>
         /// Set <i>parameter</i> by decreasing its current value by <i>positiveValueToDecreaseBy</i>.
         /// </summary>
-        public AacVRCFlEditDriver Decreases<TParam>(AacFlNumericParameter<TParam> parameter, TParam positiveValueToDecreaseBy)
+        public AacVRCFlEditAvatarParameterDriver Decreases<TParam>(AacFlNumericParameter<TParam> parameter, TParam positiveValueToDecreaseBy)
         {
             Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
@@ -458,7 +458,7 @@ namespace AnimatorAsCode.V1.VRC
         /// Copies <i>sourceParameter</i> to <i>destParameter</i> with the given custom ranges.
         /// https://docs.vrchat.com/docs/state-behaviors#copy
         /// </summary>
-        public AacVRCFlEditDriver Remaps<TSource, TDest>(AacFlParameter<TSource> sourceParameter, TSource sourceMin, TSource sourceMax, AacFlParameter<TDest> destParameter, TDest destMin, TDest destMax)
+        public AacVRCFlEditAvatarParameterDriver Remaps<TSource, TDest>(AacFlParameter<TSource> sourceParameter, TSource sourceMin, TSource sourceMax, AacFlParameter<TDest> destParameter, TDest destMin, TDest destMax)
         {
             Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
@@ -478,7 +478,7 @@ namespace AnimatorAsCode.V1.VRC
         /// Copies <i>sourceParameter</i> to <i>destParameter</i> with no custom ranges.
         /// https://docs.vrchat.com/docs/state-behaviors#copy
         /// </summary>
-        public AacVRCFlEditDriver Copies<TSource, TDest>(AacFlParameter<TSource> sourceParameter, AacFlParameter<TDest> destParameter)
+        public AacVRCFlEditAvatarParameterDriver Copies<TSource, TDest>(AacFlParameter<TSource> sourceParameter, AacFlParameter<TDest> destParameter)
         {
             Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
@@ -493,7 +493,7 @@ namespace AnimatorAsCode.V1.VRC
         /// Sets <i>parameter</i> to a random value between <i>min</i> and <i>max</i>.
         /// https://docs.vrchat.com/docs/state-behaviors#random
         /// </summary>
-        public AacVRCFlEditDriver Randomizes<TParam>(AacFlNumericParameter<TParam> parameter, TParam min, TParam max)
+        public AacVRCFlEditAvatarParameterDriver Randomizes<TParam>(AacFlNumericParameter<TParam> parameter, TParam min, TParam max)
         {
             Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
@@ -507,7 +507,7 @@ namespace AnimatorAsCode.V1.VRC
         /// Sets <i>parameter</i> to either true or false, with the given <i>chance</i>.
         /// https://docs.vrchat.com/docs/state-behaviors#random
         /// </summary>
-        public AacVRCFlEditDriver Randomizes(AacFlBoolParameter parameter, float chance)
+        public AacVRCFlEditAvatarParameterDriver Randomizes(AacFlBoolParameter parameter, float chance)
         {
             Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
             {
@@ -517,7 +517,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
-        public AacVRCFlEditDriver Sets(AacFlBoolParameterGroup parameters, bool value)
+        public AacVRCFlEditAvatarParameterDriver Sets(AacFlBoolParameterGroup parameters, bool value)
         {
             foreach (var parameter in parameters.ToList())
             {
@@ -532,37 +532,37 @@ namespace AnimatorAsCode.V1.VRC
         /// <summary>
         /// Only set this parameter for the person wearing the avatar (recommended for synced parameters).
         /// </summary>
-        public AacVRCFlEditDriver Locally()
+        public AacVRCFlEditAvatarParameterDriver Locally()
         {
             Driver.localOnly = true;
             return this;
         }
     }
 
-    public class AacVRCFlEditPlayAudio
+    public class AacVRCFlEditAnimatorPlayAudio
     {
         [PublicAPI] public VRCAnimatorPlayAudio PlayAudio { get; }
 
-        public AacVRCFlEditPlayAudio(VRCAnimatorPlayAudio playAudio)
+        public AacVRCFlEditAnimatorPlayAudio(VRCAnimatorPlayAudio playAudio)
         {
             PlayAudio = playAudio;
         }
 
-        public AacVRCFlEditPlayAudio ReplaysOnEnter()
+        public AacVRCFlEditAnimatorPlayAudio ReplaysOnEnter()
         {
             PlayAudio.PlayOnEnter = true;
             PlayAudio.StopOnEnter = true;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio StartsPlayingOnEnter()
+        public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnEnter()
         {
             PlayAudio.PlayOnEnter = true;
             PlayAudio.StopOnEnter = false;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio ReplaysOnEnterAfterSeconds(float delaySeconds)
+        public AacVRCFlEditAnimatorPlayAudio ReplaysOnEnterAfterSeconds(float delaySeconds)
         {
             PlayAudio.PlayOnEnter = true;
             PlayAudio.StopOnEnter = true;
@@ -570,7 +570,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
-        public AacVRCFlEditPlayAudio StartsPlayingOnEnterAfterSeconds(float delaySeconds)
+        public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnEnterAfterSeconds(float delaySeconds)
         {
             PlayAudio.PlayOnEnter = true;
             PlayAudio.StopOnEnter = false;
@@ -578,119 +578,119 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
-        public AacVRCFlEditPlayAudio StopsPlayingOnEnter()
+        public AacVRCFlEditAnimatorPlayAudio StopsPlayingOnEnter()
         {
             PlayAudio.PlayOnEnter = false;
             PlayAudio.StopOnEnter = true;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio ReplaysOnExit()
+        public AacVRCFlEditAnimatorPlayAudio ReplaysOnExit()
         {
             PlayAudio.PlayOnExit = true;
             PlayAudio.StopOnExit = true;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio StartsPlayingOnExit()
+        public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnExit()
         {
             PlayAudio.PlayOnExit = true;
             PlayAudio.StopOnExit = false;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio StopsPlayingOnExit()
+        public AacVRCFlEditAnimatorPlayAudio StopsPlayingOnExit()
         {
             PlayAudio.PlayOnExit = false;
             PlayAudio.StopOnExit = true;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsLoopingIfStopped()
+        public AacVRCFlEditAnimatorPlayAudio SetsLoopingIfStopped()
         {
             PlayAudio.Loop = true;
             PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsNonLoopingIfStopped()
+        public AacVRCFlEditAnimatorPlayAudio SetsNonLoopingIfStopped()
         {
             PlayAudio.Loop = false;
             PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsLooping()
+        public AacVRCFlEditAnimatorPlayAudio SetsLooping()
         {
             PlayAudio.Loop = true;
             PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsNonLooping()
+        public AacVRCFlEditAnimatorPlayAudio SetsNonLooping()
         {
             PlayAudio.Loop = false;
             PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio RandomizesVolumeIfStopped(float min, float max)
+        public AacVRCFlEditAnimatorPlayAudio RandomizesVolumeIfStopped(float min, float max)
         {
             PlayAudio.Volume = new Vector2(min, max);
             PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio RandomizesVolume(float min, float max)
+        public AacVRCFlEditAnimatorPlayAudio RandomizesVolume(float min, float max)
         {
             PlayAudio.Volume = new Vector2(min, max);
             PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio RandomizesPitchIfStopped(float min, float max)
+        public AacVRCFlEditAnimatorPlayAudio RandomizesPitchIfStopped(float min, float max)
         {
             PlayAudio.Pitch = new Vector2(min, max);
             PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio RandomizesPitch(float min, float max)
+        public AacVRCFlEditAnimatorPlayAudio RandomizesPitch(float min, float max)
         {
             PlayAudio.Pitch = new Vector2(min, max);
             PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsVolumeIfStopped(float value)
+        public AacVRCFlEditAnimatorPlayAudio SetsVolumeIfStopped(float value)
         {
             PlayAudio.Volume = new Vector2(value, value);
             PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsVolume(float value)
+        public AacVRCFlEditAnimatorPlayAudio SetsVolume(float value)
         {
             PlayAudio.Volume = new Vector2(value, value);
             PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsPitchIfStopped(float value)
+        public AacVRCFlEditAnimatorPlayAudio SetsPitchIfStopped(float value)
         {
             PlayAudio.Pitch = new Vector2(value, value);
             PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SetsPitch(float value)
+        public AacVRCFlEditAnimatorPlayAudio SetsPitch(float value)
         {
             PlayAudio.Pitch = new Vector2(value, value);
             PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SelectsClipIfStopped(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
+        public AacVRCFlEditAnimatorPlayAudio SelectsClipIfStopped(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = order;
             PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
@@ -698,7 +698,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SelectsClip(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
+        public AacVRCFlEditAnimatorPlayAudio SelectsClip(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = order;
             PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
@@ -706,7 +706,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SelectsClipIfStopped(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
+        public AacVRCFlEditAnimatorPlayAudio SelectsClipIfStopped(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
             PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
@@ -715,7 +715,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
-        public AacVRCFlEditPlayAudio SelectsClip(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
+        public AacVRCFlEditAnimatorPlayAudio SelectsClip(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
             PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
