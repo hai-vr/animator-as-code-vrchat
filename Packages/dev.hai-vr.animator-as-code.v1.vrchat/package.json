@@ -1,7 +1,7 @@
 {
   "name": "dev.hai-vr.animator-as-code.v1.vrchat",
   "displayName": "Animator As Code - VRChat (Alpha)",
-  "version": "1.0.9940",
+  "version": "1.0.9941-alpha.1",
   "unity": "2019.4",
   "description": "VRChat Avatars extension functions.",
   "vrchatVersion" : "2022.1.1",
@@ -9,8 +9,8 @@
     "name" : "Haï~"
   },
   "vpmDependencies": {
-    "dev.hai-vr.animator-as-code.v1": "~1.0.9940",
-    "com.vrchat.avatars": ">=3.3.0 <3.7.0-a"
+    "dev.hai-vr.animator-as-code.v1": "~1.0.9941-alpha.1",
+    "com.vrchat.avatars": ">=3.5.2 <3.7.0-a"
   },
   "url" : "https://docs.hai-vr.dev/docs/products/animator-as-code/functions/vrchat"
 }

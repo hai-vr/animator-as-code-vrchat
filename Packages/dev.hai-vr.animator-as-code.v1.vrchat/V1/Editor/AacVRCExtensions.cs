@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
@@ -189,6 +191,60 @@ namespace AnimatorAsCode.V1.VRC
             return node;
         }
 
+        /// <summary>
+        /// Creates a new VRCAvatarParameterDriver behaviour, and edits it. By default, it is non-local, so it drives even if it's not on the avatar wearer.
+        /// This always creates a new behaviour even if there are already other VRCAvatarParameterDriver behaviours.
+        /// </summary>
+        public static TNode Driving<TNode>(this TNode node, Action<AacVRCFlEditAvatarParameterDriver> action) where TNode : AacAnimatorNode<TNode>
+        {
+            var driver = node.CreateNewBehaviour<VRCAvatarParameterDriver>();
+            driver.localOnly = false;
+            
+            action.Invoke(new AacVRCFlEditAvatarParameterDriver(driver));
+
+            return node;
+        }
+
+        /// <summary>
+        /// Creates a new VRCAnimatorPlayAudio behaviour, and edits it.
+        /// If you don't have the AudioSource, use the overload that accepts a string.
+        /// By default, this behaviour does nothing (everything is set to NeverApply, and does neither stop nor plays anything), unlike a VRCAnimatorPlayAudio that would be created by hand.
+        /// This always creates a new behaviour even if there are already other VRCAnimatorPlayAudio behaviours.
+        /// </summary>
+        public static TNode Audio<TNode>(this TNode node, AudioSource source, Action<AacVRCFlEditAnimatorPlayAudio> action) where TNode : AacAnimatorNode<TNode>
+        {
+            var sourcePath = node.ResolveRelativePath(source.transform);
+            
+            Audio(node, sourcePath, action);
+
+            return node;
+        }
+
+        /// <summary>
+        /// Creates a new VRCAnimatorPlayAudio behaviour, and edits it.
+        /// There is an overload that takes an AudioSource instead of a string.
+        /// By default, this behaviour does nothing (everything is set to NeverApply, and does neither stop nor plays anything), unlike a VRCAnimatorPlayAudio that would be created by hand.
+        /// This always creates a new behaviour even if there are already other VRCAnimatorPlayAudio behaviours.
+        /// </summary>
+        public static TNode Audio<TNode>(this TNode node, string audioSourcePath, Action<AacVRCFlEditAnimatorPlayAudio> action) where TNode : AacAnimatorNode<TNode>
+        {
+            var playAudio = node.CreateNewBehaviour<VRCAnimatorPlayAudio>();
+            playAudio.SourcePath = audioSourcePath;
+            playAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            playAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            playAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            playAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.NeverApply;
+            
+            playAudio.PlayOnEnter = false;
+            playAudio.StopOnEnter = false;
+            playAudio.PlayOnExit = false;
+            playAudio.StopOnExit = false;
+            
+            action.Invoke(new AacVRCFlEditAnimatorPlayAudio(playAudio));
+
+            return node;
+        }
+
         private static void EnsureParameter(this VRC_AvatarParameterDriver driver, VRC_AvatarParameterDriver.Parameter p)
         {
             for (var i = 0; i < driver.parameters.Count; i++)
@@ -346,6 +402,326 @@ namespace AnimatorAsCode.V1.VRC
             temporaryPoseSpace.fixedDelay = false;
             temporaryPoseSpace.delayTime = delayNormalized;
             return node;
+        }
+    }
+
+    public class AacVRCFlEditAvatarParameterDriver
+    {
+        [PublicAPI] public VRCAvatarParameterDriver Driver { get; }
+
+        public AacVRCFlEditAvatarParameterDriver(VRCAvatarParameterDriver driver)
+        {
+            Driver = driver;
+        }
+
+        /// <summary>
+        /// Set <i>parameter</i> to a given <i>value</i>.
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Sets<TParam>(AacFlParameter<TParam> parameter, TParam value)
+        {
+            Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                type = VRC_AvatarParameterDriver.ChangeType.Set,
+                name = parameter.Name, value = parameter.ValueToFloat(value)
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Set <i>parameter</i> by increasing its current value by <i>additiveValue</i>.
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Increases<TParam>(AacFlNumericParameter<TParam> parameter, TParam additiveValue)
+        {
+            Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                type = VRC_AvatarParameterDriver.ChangeType.Add,
+                name = parameter.Name, value = parameter.ValueToFloat(additiveValue)
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Set <i>parameter</i> by decreasing its current value by <i>positiveValueToDecreaseBy</i>.
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Decreases<TParam>(AacFlNumericParameter<TParam> parameter, TParam positiveValueToDecreaseBy)
+        {
+            Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                type = VRC_AvatarParameterDriver.ChangeType.Add,
+                name = parameter.Name, 
+                value = parameter.ValueToFloat(positiveValueToDecreaseBy) * -1
+            });
+            return this;
+        }
+        
+        /// <summary>
+        /// Copies <i>sourceParameter</i> to <i>destParameter</i> with the given custom ranges.
+        /// https://docs.vrchat.com/docs/state-behaviors#copy
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Remaps<TSource, TDest>(AacFlParameter<TSource> sourceParameter, TSource sourceMin, TSource sourceMax, AacFlParameter<TDest> destParameter, TDest destMin, TDest destMax)
+        {
+            Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                name = destParameter.Name,
+                type = VRC_AvatarParameterDriver.ChangeType.Copy,
+                source = sourceParameter.Name,
+                convertRange = true,
+                sourceMin = sourceParameter.ValueToFloat(sourceMin),
+                sourceMax = sourceParameter.ValueToFloat(sourceMax),
+                destMin = destParameter.ValueToFloat(destMin),
+                destMax = destParameter.ValueToFloat(destMax)
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Copies <i>sourceParameter</i> to <i>destParameter</i> with no custom ranges.
+        /// https://docs.vrchat.com/docs/state-behaviors#copy
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Copies<TSource, TDest>(AacFlParameter<TSource> sourceParameter, AacFlParameter<TDest> destParameter)
+        {
+            Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                name = destParameter.Name,
+                type = VRC_AvatarParameterDriver.ChangeType.Copy,
+                source = sourceParameter.Name,
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Sets <i>parameter</i> to a random value between <i>min</i> and <i>max</i>.
+        /// https://docs.vrchat.com/docs/state-behaviors#random
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Randomizes<TParam>(AacFlNumericParameter<TParam> parameter, TParam min, TParam max)
+        {
+            Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                type = VRC_AvatarParameterDriver.ChangeType.Random,
+                name = parameter.Name, valueMin = parameter.ValueToFloat(min), valueMax = parameter.ValueToFloat(max)
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Sets <i>parameter</i> to either true or false, with the given <i>chance</i>.
+        /// https://docs.vrchat.com/docs/state-behaviors#random
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Randomizes(AacFlBoolParameter parameter, float chance)
+        {
+            Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+            {
+                type = VRC_AvatarParameterDriver.ChangeType.Random,
+                name = parameter.Name, chance = chance
+            });
+            return this;
+        }
+
+        public AacVRCFlEditAvatarParameterDriver Sets(AacFlBoolParameterGroup parameters, bool value)
+        {
+            foreach (var parameter in parameters.ToList())
+            {
+                Driver.parameters.Add(new VRC_AvatarParameterDriver.Parameter
+                {
+                    name = parameter.Name, value = value ? 1 : 0
+                });
+            }
+            return this;
+        }
+        
+        /// <summary>
+        /// Only set this parameter for the person wearing the avatar (recommended for synced parameters).
+        /// </summary>
+        public AacVRCFlEditAvatarParameterDriver Locally()
+        {
+            Driver.localOnly = true;
+            return this;
+        }
+    }
+
+    public class AacVRCFlEditAnimatorPlayAudio
+    {
+        [PublicAPI] public VRCAnimatorPlayAudio PlayAudio { get; }
+
+        public AacVRCFlEditAnimatorPlayAudio(VRCAnimatorPlayAudio playAudio)
+        {
+            PlayAudio = playAudio;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio ReplaysOnEnter()
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = true;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnEnter()
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = false;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio ReplaysOnEnterAfterSeconds(float delaySeconds)
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = true;
+            PlayAudio.DelayInSeconds = delaySeconds;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnEnterAfterSeconds(float delaySeconds)
+        {
+            PlayAudio.PlayOnEnter = true;
+            PlayAudio.StopOnEnter = false;
+            PlayAudio.DelayInSeconds = delaySeconds;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio StopsPlayingOnEnter()
+        {
+            PlayAudio.PlayOnEnter = false;
+            PlayAudio.StopOnEnter = true;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio ReplaysOnExit()
+        {
+            PlayAudio.PlayOnExit = true;
+            PlayAudio.StopOnExit = true;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnExit()
+        {
+            PlayAudio.PlayOnExit = true;
+            PlayAudio.StopOnExit = false;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio StopsPlayingOnExit()
+        {
+            PlayAudio.PlayOnExit = false;
+            PlayAudio.StopOnExit = true;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsLoopingIfStopped()
+        {
+            PlayAudio.Loop = true;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsNonLoopingIfStopped()
+        {
+            PlayAudio.Loop = false;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsLooping()
+        {
+            PlayAudio.Loop = true;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsNonLooping()
+        {
+            PlayAudio.Loop = false;
+            PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio RandomizesVolumeIfStopped(float min, float max)
+        {
+            PlayAudio.Volume = new Vector2(min, max);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio RandomizesVolume(float min, float max)
+        {
+            PlayAudio.Volume = new Vector2(min, max);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio RandomizesPitchIfStopped(float min, float max)
+        {
+            PlayAudio.Pitch = new Vector2(min, max);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio RandomizesPitch(float min, float max)
+        {
+            PlayAudio.Pitch = new Vector2(min, max);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsVolumeIfStopped(float value)
+        {
+            PlayAudio.Volume = new Vector2(value, value);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsVolume(float value)
+        {
+            PlayAudio.Volume = new Vector2(value, value);
+            PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsPitchIfStopped(float value)
+        {
+            PlayAudio.Pitch = new Vector2(value, value);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SetsPitch(float value)
+        {
+            PlayAudio.Pitch = new Vector2(value, value);
+            PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SelectsClipIfStopped(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = order;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SelectsClip(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = order;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SelectsClipIfStopped(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
+            PlayAudio.ParameterName = indexParameter.Name;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
+        }
+
+        public AacVRCFlEditAnimatorPlayAudio SelectsClip(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
+        {
+            PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
+            PlayAudio.ClipsApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
+            PlayAudio.ParameterName = indexParameter.Name;
+            PlayAudio.Clips = clipsWithNulls.Where(clip => clip != null).ToArray();
+            return this;
         }
     }
 
