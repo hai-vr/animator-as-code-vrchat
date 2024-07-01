@@ -548,6 +548,7 @@ namespace AnimatorAsCode.V1.VRC
             PlayAudio = playAudio;
         }
 
+        /// Stop, and Play when the state is entered.
         public AacVRCFlEditAnimatorPlayAudio ReplaysOnEnter()
         {
             PlayAudio.PlayOnEnter = true;
@@ -555,6 +556,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Does not stop, and Play when the state is entered.
         public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnEnter()
         {
             PlayAudio.PlayOnEnter = true;
@@ -562,6 +564,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Stop, and Play when the state is entered after a delay in seconds.
         public AacVRCFlEditAnimatorPlayAudio ReplaysOnEnterAfterSeconds(float delaySeconds)
         {
             PlayAudio.PlayOnEnter = true;
@@ -570,6 +573,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Does not stop, and Play when the state is entered after a delay in seconds.
         public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnEnterAfterSeconds(float delaySeconds)
         {
             PlayAudio.PlayOnEnter = true;
@@ -578,6 +582,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Stop, and do not Play when the state is entered.
         public AacVRCFlEditAnimatorPlayAudio StopsPlayingOnEnter()
         {
             PlayAudio.PlayOnEnter = false;
@@ -585,6 +590,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Stop, and Play when leaving the state.
         public AacVRCFlEditAnimatorPlayAudio ReplaysOnExit()
         {
             PlayAudio.PlayOnExit = true;
@@ -592,6 +598,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Does not stop, and Play when leaving the state.
         public AacVRCFlEditAnimatorPlayAudio StartsPlayingOnExit()
         {
             PlayAudio.PlayOnExit = true;
@@ -599,6 +606,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Stop, and do not Play when leaving the state.
         public AacVRCFlEditAnimatorPlayAudio StopsPlayingOnExit()
         {
             PlayAudio.PlayOnExit = false;
@@ -606,6 +614,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Set the audio source as looping if stopped.
         public AacVRCFlEditAnimatorPlayAudio SetsLoopingIfStopped()
         {
             PlayAudio.Loop = true;
@@ -613,6 +622,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Set the audio source as non-looping if stopped.
         public AacVRCFlEditAnimatorPlayAudio SetsNonLoopingIfStopped()
         {
             PlayAudio.Loop = false;
@@ -620,6 +630,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Set the audio source as looping.
         public AacVRCFlEditAnimatorPlayAudio SetsLooping()
         {
             PlayAudio.Loop = true;
@@ -627,20 +638,23 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Set the audio source as non-looping.
         public AacVRCFlEditAnimatorPlayAudio SetsNonLooping()
         {
             PlayAudio.Loop = false;
             PlayAudio.LoopApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
-
+        
+        /// Randomizes the volume if stopped.
         public AacVRCFlEditAnimatorPlayAudio RandomizesVolumeIfStopped(float min, float max)
         {
             PlayAudio.Volume = new Vector2(min, max);
             PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
-
+        
+        /// Randomizes the volume.
         public AacVRCFlEditAnimatorPlayAudio RandomizesVolume(float min, float max)
         {
             PlayAudio.Volume = new Vector2(min, max);
@@ -648,6 +662,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Randomizes the pitch if stopped.
         public AacVRCFlEditAnimatorPlayAudio RandomizesPitchIfStopped(float min, float max)
         {
             PlayAudio.Pitch = new Vector2(min, max);
@@ -655,20 +670,23 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Randomizes the pitch.
         public AacVRCFlEditAnimatorPlayAudio RandomizesPitch(float min, float max)
         {
             PlayAudio.Pitch = new Vector2(min, max);
             PlayAudio.PitchApplySettings = VRC_AnimatorPlayAudio.ApplySettings.AlwaysApply;
             return this;
         }
-
+        
+        /// Sets the volume if stopped.
         public AacVRCFlEditAnimatorPlayAudio SetsVolumeIfStopped(float value)
         {
             PlayAudio.Volume = new Vector2(value, value);
             PlayAudio.VolumeApplySettings = VRC_AnimatorPlayAudio.ApplySettings.ApplyIfStopped;
             return this;
         }
-
+        
+        /// Sets the volume.
         public AacVRCFlEditAnimatorPlayAudio SetsVolume(float value)
         {
             PlayAudio.Volume = new Vector2(value, value);
@@ -676,6 +694,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Sets the pitch if stopped.
         public AacVRCFlEditAnimatorPlayAudio SetsPitchIfStopped(float value)
         {
             PlayAudio.Pitch = new Vector2(value, value);
@@ -683,6 +702,7 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Sets the pitch.
         public AacVRCFlEditAnimatorPlayAudio SetsPitch(float value)
         {
             PlayAudio.Pitch = new Vector2(value, value);
@@ -690,6 +710,9 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Defines the list of clips and the order they are going to play in, if stopped.<br/>
+        /// The list can safely contain null values.<br/>
+        /// If you want to use the VRC_AnimatorPlayAudio.Order.Parameter enum value, use the overload that accepts an AacFlIntParameter instead.
         public AacVRCFlEditAnimatorPlayAudio SelectsClipIfStopped(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = order;
@@ -698,6 +721,9 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Defines the list of clips and the order they are going to play in.<br/>
+        /// The list can safely contain null values.<br/>
+        /// If you want to use the VRC_AnimatorPlayAudio.Order.Parameter enum value, use the overload that accepts an AacFlIntParameter instead.
         public AacVRCFlEditAnimatorPlayAudio SelectsClip(VRC_AnimatorPlayAudio.Order order, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = order;
@@ -706,6 +732,8 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Defines the list of clips, which will play using the parameter as an index, if stopped.<br/>
+        /// The list can safely contain null values, however, null values will be removed, causing the indices of elements of that list to change, which may or may not be an issue.
         public AacVRCFlEditAnimatorPlayAudio SelectsClipIfStopped(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
@@ -715,6 +743,8 @@ namespace AnimatorAsCode.V1.VRC
             return this;
         }
 
+        /// Defines the list of clips, which will play using the parameter as an index.<br/>
+        /// The list can safely contain null values, however, null values will be removed, causing the indices of elements of that list to change, which may or may not be an issue.
         public AacVRCFlEditAnimatorPlayAudio SelectsClip(AacFlIntParameter indexParameter, AudioClip[] clipsWithNulls)
         {
             PlayAudio.PlaybackOrder = VRC_AnimatorPlayAudio.Order.Parameter;
