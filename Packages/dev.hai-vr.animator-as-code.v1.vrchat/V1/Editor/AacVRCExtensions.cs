@@ -409,7 +409,7 @@ namespace AnimatorAsCode.V1.VRC
     {
         [PublicAPI] public VRCAvatarParameterDriver Driver { get; }
 
-        public AacVRCFlEditAvatarParameterDriver(VRCAvatarParameterDriver driver)
+        internal AacVRCFlEditAvatarParameterDriver(VRCAvatarParameterDriver driver)
         {
             Driver = driver;
         }
@@ -543,7 +543,7 @@ namespace AnimatorAsCode.V1.VRC
     {
         [PublicAPI] public VRCAnimatorPlayAudio PlayAudio { get; }
 
-        public AacVRCFlEditAnimatorPlayAudio(VRCAnimatorPlayAudio playAudio)
+        internal AacVRCFlEditAnimatorPlayAudio(VRCAnimatorPlayAudio playAudio)
         {
             PlayAudio = playAudio;
         }
@@ -849,6 +849,10 @@ namespace AnimatorAsCode.V1.VRC
 
     public class AacVrcAssetLibrary
     {
+        internal AacVrcAssetLibrary()
+        {
+        }
+
         public AvatarMask LeftHandAvatarMask()
         {
             return AssetDatabase.LoadAssetAtPath<AvatarMask>("Packages/com.vrchat.avatars/Samples/AV3 Demo Assets/Animation/Masks/vrc_Hand Left.mask");
