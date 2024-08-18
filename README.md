@@ -12,3 +12,7 @@ Install using the VRChat Creator Companion. Instructions are available in [this 
 ## Documentation
 
 - The documentation is available at [docs.hai-vr.dev](https://docs.hai-vr.dev/docs/products/animator-as-code/functions/vrchat).
+
+## Minimum VRChat version
+
+- Starting from 1.1.0-beta.1, the minimum VRChat version supported is `3.5.2`, as this adds support for `VRC_AnimatorPlayAudio`.
