@@ -10,7 +10,7 @@
   },
   "vpmDependencies": {
     "dev.hai-vr.animator-as-code.v1": ">=1.1.0 <2.0.0-a",
-    "com.vrchat.avatars": ">=3.5.2 <3.8.0-a"
+    "com.vrchat.avatars": ">=3.5.2 <999.0.0-a"
   },
   "url" : "https://docs.hai-vr.dev/docs/products/animator-as-code/functions/vrchat",
   "documentationUrl": "https://docs.hai-vr.dev/docs/products/animator-as-code/functions/vrchat",
